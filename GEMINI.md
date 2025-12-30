@@ -2,21 +2,23 @@
 
 ## Status Report
 **Date**: 2025-12-30
-**Phase**: Phase 2 Completed (Visual Engine Setup)
-**Current Goal**: Documentation & Dataset Generation.
+**Phase**: Phase 3 (Training) & Phase 4 (Intelligence) Active
+**Current Goal**: Training LoRA (Cloud) & Setting up Ollama.
 
 ## Architecture Decisions
-- **Image Gen**: We use **Flux.1 [dev] fp8** because it fits into 12GB VRAM while offering state-of-the-art realism (better than SDXL).
-- **Control**: We control ComfyUI via its **API (Port 8188)** using Python scripts, rather than writing custom nodes. This allows external orchestration (later n8n).
-- **Training**: We decided on **Synthetic Data Generation**. We generate a dataset of ~20 images using a master prompt to then train a LoRA. This avoids legal/ethical issues of copying real people.
+- **Image Gen**: We use **Flux.1 [dev] fp8** locally for generation.
+- **Control**: ComfyUI API + Python.
+- **Training**: **Cloud Training (Civitai)**. We switched from local training (AI-Toolkit) to Cloud because 12GB VRAM/16GB RAM was insufficient for Flux LoRA training.
+- **Intelligence**: **Ollama** running **Llama 3.2 (3B)** locally as the brain.
 
 ## Completed Milestones
-- [x] **Character Definition**: Defined "Lena-Marie" (DevOps Nerd + Hiker).
-- [x] **Roadmap**: Full project plan created.
-- [x] **Infrastructure**: ComfyUI installed, Models downloaded.
-- [x] **Integration**: Python scripts can trigger generation and retrieve images.
+- [x] **Character Definition**: Defined "Lena-Marie".
+- [x] **Visual Engine**: ComfyUI + Flux running locally.
+- [x] **Dataset**: 20+ High-Quality images generated & tagged.
+- [x] **Training (Started)**: Dataset uploaded to Civitai, training in progress.
+- [x] **Intelligence Engine**: Ollama installed, Llama 3.2 running.
 
 ## Next Steps
-1.  Generate Training Data (20 images).
-2.  Train LoRA (likely using Kohya_ss).
-3.  Install Ollama (Language Brain).
+1.  Download finished LoRA from Civitai.
+2.  Test LoRA in ComfyUI.
+3.  Connect Python scripts with Ollama for automated captioning.

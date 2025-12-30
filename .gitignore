@@ -2,18 +2,19 @@
 __pycache__/
 *.py[cod]
 *$py.class
-venv/
+**/venv/
 .env
 
 # ComfyUI (Local Installation is huge)
 ComfyUI/
 *.safetensors
+*.zip
 output/
 temp/
 
 # Training Data (Can be large)
-training_data/raw_images/*
-!training_data/raw_images/.gitkeep
+# training_data/raw_images/*
+# !training_data/raw_images/.gitkeep
 
 # IDE
 .vscode/
