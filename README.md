@@ -1,7 +1,8 @@
 # AI Influencer Project: Lena-Marie
 
-**Status**: 🚧 Alpha / Development  
+**Status**: 🚧 Alpha / Development
 **Tech Stack**: Python, ComfyUI (Flux.1), Android (ADB), Ollama (LLM)
+**Documentation**: [Roadmap](docs/roadmap.md) | [Character Card](docs/character_card.md) | [Project Context](docs/GEMINI.md)
 
 ## Project Overview
 This project aims to create a fully autonomous, realistic AI Influencer named **Lena-Marie** (21, Junior DevOps Engineer).

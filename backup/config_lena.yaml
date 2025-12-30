@@ -1,0 +1,74 @@
+---
+job: extension
+config:
+  # this name will be the folder and filename name
+  name: "lena_marie_v1"
+  process:
+    - type: 'sd_trainer'
+      # root folder to save training sessions/samples/weights
+      training_folder: "output"
+      # calculate performance metrics
+      performance_log_every: 1000
+      device: cuda:0
+      # if a trigger word is specified, it will be added to captions of training data if it does not exist
+      # alternatively it will be added to the end of the prompt and the beginning of the prompt
+      trigger_word: "lena_marie"
+      network:
+        type: "lora"
+        linear: 16
+        linear_alpha: 16
+      save:
+        dtype: float16 # precision to save
+        save_every: 250 # save every this many steps
+        max_step_saves_to_keep: 1 # how many intermittent saves to keep
+      datasets:
+        # datasets are a folder of images. captions need to be txt files with the same name as the image
+        # for instance image2.jpg and image2.txt. Only one file as caption is needed.
+        # Any other file will be ignored
+        - folder_path: "C:/Users/k4_PC/Projekte/ai_influencer/training_data/synthetic_raw"
+          caption_ext: "txt"
+          caption_dropout_rate: 0.05  # 5% chance to drop captions
+          shuffle_tokens: false  # shuffle caption order
+          cache_latents_to_disk: true  # key for speed on low vram
+          resolution: [512, 768, 1024]  # Flux supports strict bucketing
+      train:
+        batch_size: 1
+        steps: 2000  # 2000 steps is good for ~20 images (100 epochs)
+        gradient_accumulation_steps: 1
+        train_unet: true
+        train_text_encoder: false  # false = better for 12GB VRAM
+        content_or_style: balanced
+        gradient_checkpointing: true  # critical for low vram
+        noise_scheduler: "flowmatch" # for flux
+        optimizer: "adamw8bit"
+        lr: 1e-4
+        
+        # ema_config:
+        #   use_ema: true
+        #   ema_decay: 0.99
+          
+        dtype: bf16 # use bf16 for training if supported, else fp16
+      model:
+        # Switching to FLUX.1-schnell (Apache 2.0) so we don't need a token or complex conversion.
+        # It downloads automatically (~20GB) check your disk space!
+        name_or_path: "black-forest-labs/FLUX.1-schnell"
+        is_flux: true
+        quantize: true  # run in quantized mode
+      sample:
+        sampler: "flowmatch" # must match train.noise_scheduler
+        sample_every: 250 # sample every this many steps
+        width: 1024
+        height: 1024
+        prompts:
+          # prompts to generate samples with
+          - "lena_marie, a young woman wearing glasses and a hoodie, looking at a laptop"
+          - "lena_marie, hiking in the mountains, sunny day"
+          - "lena_marie, selfie, close up"
+        neg: ""  # not used on flux
+        seed: 42
+        walk_seed: true
+        guidance_scale: 4
+        sample_steps: 20
+meta:
+  name: "[name]"
+  version: '1.0'

@@ -13,8 +13,8 @@ output/
 temp/
 
 # Training Data (Can be large)
-# training_data/raw_images/*
-# !training_data/raw_images/.gitkeep
+training_data/synthetic_raw/
+training_data/raw_images/
 
 # IDE
 .vscode/
