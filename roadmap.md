@@ -35,6 +35,21 @@ Sei freundlich, hilfsbereit, aber habe eine eigene Meinung.
 
 [ ] Character Card & Voice: Schreiben der Persönlichkeits-Bibel (Slang, Emojis, Haltung, No-Gos) für das LLM.
 
+📅 Phase 1.5: Content Strategy (Instagram Focus)
+Der Plan für den Content-Mix, um "Realismus" zu erzeugen.
+
+[ ] Plattform-Fokus: Instagram Only (vorerst). Keine TikTok/X Expansion bis der Workflow steht.
+
+[ ] Content-Mix:
+    - Feed Posts (High Quality): Beste Bilder aus ComfyUI (Flux.1). Fokus auf Ästhetik & Lifestyle.
+    - Reels (Reach): Animierte Bilder (z.B. mit KlingAI/Runway) oder "Static-with-Audio" Trends.
+    - Stories (Binding): "Low Quality" Snapshots (Vision Model generated text) für den "Behind the scenes" Vibe.
+
+[ ] Posting-Frequenz (Ziel):
+    - 3-4 Feed Posts pro Woche.
+    - 1 Reel pro Woche.
+    - Tägliche Stories (sobald Automation läuft).
+
 🎨 Phase 2: Visual Engine (PC / ComfyUI)
 Einrichtung der Bildgenerierung auf der RTX 3080 Ti.
 
@@ -119,3 +134,12 @@ Der langsame Start, um Bans zu vermeiden.
 [ ] Go-Live: Aktivieren der Posting-Automatisierung (erst 1 Post alle 2-3 Tage).
 
 [ ] Überwachung: Logs prüfen: Wirkt sie echt? Gibt es Fehler?
+
+💰 Phase 7: Monetization (Long-term / Optional)
+Erst relevant, wenn eine Community existiert (ab ~5k Follower).
+
+[ ] Strategie-Entscheidung:
+    - Brand Deals (Fashion/Tech).
+    - Affiliate (Amazon Links für "ihre" Gear).
+    - Exclusive Content (Patreon/Fanvue - *nur wenn SFW/Safe bleiben soll*).
+

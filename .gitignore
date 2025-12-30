@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.env
+
+# ComfyUI (Local Installation is huge)
+ComfyUI/
+*.safetensors
+output/
+temp/
+
+# Training Data (Can be large)
+training_data/raw_images/*
+!training_data/raw_images/.gitkeep
+
+# IDE
+.vscode/
+.idea/
+
+# AI Artifacts
+brain/
