@@ -1,18 +1,18 @@
 # AI Influencer Project: Lena-Marie
 
 **Status**: 🚧 Alpha / Development
-**Tech Stack**: Python, ComfyUI (Flux.1), Android (ADB), Ollama (LLM)
-**Documentation**: [Roadmap](docs/roadmap.md) | [Character Card](docs/character_card.md) | [Project Context](docs/GEMINI.md)
+**Tech Stack**: Python, ComfyUI (Flux.1), Ollama (LLM), Instagrapi (Automation)
+**Documentation**: [Roadmap](docs/roadmap.md) | [Character Card](docs/character_card.md) | [Project Context](docs/GEMINI.md) | [Safety Report](docs/safety_report.md)
 
 ## Project Overview
 This project aims to create a fully autonomous, realistic AI Influencer named **Lena-Marie** (21, Junior DevOps Engineer).
-The system runs locally on a high-end PC (RTX 3080 Ti) and controls a physical Android smartphone to post on Instagram.
+The system runs locally on a high-end PC (RTX 3080 Ti) and manages the entire content lifecycle from idea to Instagram post.
 
 ## Core Components
-1.  **Visual Engine**: ComfyUI + Flux.1 [dev] (FP8) for generating hyper-realistic images.
-2.  **Intelligence Engine**: Ollama (Llama 3.2) for generating captions, comments, and personality.
-3.  **Automation Layer**: Python + ADB to control the Instagram App on an Android device.
-4.  **Orchestrator**: n8n (planned) to glue everything together.
+1.  **Visual Engine**: ComfyUI + Flux.1 [dev] (FP8) + Custom LoRA.
+2.  **Intelligence Engine**: Ollama (Llama 3.2) for creative direction and caption writing.
+3.  **Automation Layer**: Python scripts with `Instagrapi` for direct Instagram access.
+4.  **Resource Manager**: Sequential execution logic to maximize VRAM usage.
 
 ## Getting Started
 
@@ -24,27 +24,15 @@ The system runs locally on a high-end PC (RTX 3080 Ti) and controls a physical A
 - [Ollama](https://ollama.com)
 
 ### Installation
-See the `docs/` folder for detailed setup guides:
-- [Setup ComfyUI](docs/setup_comfyui.md)
-- [Setup Training (Cloud)](docs/cloud_training_guide.md)
-- [Setup Intelligence](docs/setup_intelligence.md)
+1.  Clone repo.
+2.  Create `.env` using `.env.template` and add Instagram credentials.
+3.  See `docs/` for detailed setup guides.
 
-### Usage (Current)
-**Visual Engine:**
+### Usage (Automation)
+**Run the full pipeline (Idea -> Image -> Post):**
 ```bash
-python scripts/generate_image.py
-```
-
-**Intelligence Engine:**
-```bash
-ollama run llama3.2 "Say hi as Lena"
-```
-```bash
-# Test connection to ComfyUI
-python scripts/test_comfy.py
-
-# Generate a test image
-python scripts/generate_image.py
+# Edit scripts/auto_generate.py to set DRY_RUN = False for live posting
+python scripts/auto_generate.py
 ```
 
 ## Directory Structure
