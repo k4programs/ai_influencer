@@ -17,7 +17,7 @@ COMFY_URL = "http://127.0.0.1:8188"
 WORKFLOW_FILE = r"c:\Users\k4_PC\Projekte\ai_influencer\workflows\test_lena_lora.json"
 OUTPUT_DIR = r"c:\Users\k4_PC\Projekte\ai_influencer\ComfyUI\ComfyUI\output"
 PROJECT_ROOT = r"c:\Users\k4_PC\Projekte\ai_influencer"
-DRY_RUN = True # Set to False for LIVE POSTING
+DRY_RUN = False # Set to False for LIVE POSTING
 
 # --- PROMPTS ---
 PERSONA_SYSTEM_PROMPT = """
@@ -206,19 +206,30 @@ def wait_for_image(prompt_id, timeout=300):
 
 def save_result(image_path, caption):
     if not image_path or not os.path.exists(image_path):
-        return
+        return None
     timestamp = time.strftime("%Y-%m-%d_%H-%M-%S")
+    # Clean timestamp just in case
+    timestamp = timestamp.replace(":", "-") 
     post_folder = os.path.join(OUTPUT_DIR, f"post_{timestamp}")
     os.makedirs(post_folder, exist_ok=True)
     
     file_name = os.path.basename(image_path)
     new_image_path = os.path.join(post_folder, file_name)
-    os.rename(image_path, new_image_path)
     
+    # Retry logic for rename (Windows file locking can be annoying)
+    for i in range(3):
+        try:
+            os.rename(image_path, new_image_path)
+            break
+        except Exception as e:
+            print(f"⚠️ Rename attempt {i+1} failed: {e}")
+            time.sleep(1)
+            
     with open(os.path.join(post_folder, "caption.txt"), "w", encoding="utf-8") as f:
         f.write(caption)
         
     print(f"📂 Saved post to: {post_folder}")
+    return new_image_path
 
 # --- MAIN SEQUENCE ---
 if __name__ == "__main__":
@@ -261,18 +272,22 @@ if __name__ == "__main__":
         if job_id:
             image_path = wait_for_image(job_id, timeout=600)
             if image_path:
-                save_result(image_path, caption) # Save the 1st person caption, NOT the prompt
+                # Move file and get NEW path
+                final_image_path = save_result(image_path, caption) 
                 
                 print("🛑 Stopping ComfyUI to free resources...")
                 ServiceManager.kill_process("python")
 
-                # 4. Automation Phase
-                print(f"\n--- STEP 4: AUTOMATION (Mode: {'DRY RUN' if DRY_RUN else 'LIVE'}) ---")
-                print("🤖 Initiating Instagram Post...")
-                bot = InstagramBot() 
-                bot.upload_photo(image_path, caption, mock=DRY_RUN) 
-                
-                print("\n✅ Workflow Completed Successfully!")
+                if final_image_path:
+                    # 4. Automation Phase
+                    print(f"\n--- STEP 4: AUTOMATION (Mode: {'DRY RUN' if DRY_RUN else 'LIVE'}) ---")
+                    print("🤖 Initiating Instagram Post...")
+                    bot = InstagramBot() 
+                    bot.upload_photo(final_image_path, caption, mock=DRY_RUN) 
+                    
+                    print("\n✅ Workflow Completed Successfully!")
+                else:
+                    print("❌ Failed to save/move image.")
             else:
                 print("❌ Image generation failed.")
         else:

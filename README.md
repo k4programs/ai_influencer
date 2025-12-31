@@ -29,16 +29,26 @@ The system runs locally on a high-end PC (RTX 3080 Ti) and manages the entire co
 3.  See `docs/` for detailed setup guides.
 
 ### Usage (Automation)
-**Run the full pipeline (Idea -> Image -> Post):**
+**Option A: One-Click Launcher (Recommended)**
+Double-click `run_automation.bat` on your Desktop (create a shortcut).
+- Opens a window and runs the Scheduler.
+- 🛑 **To Stop**: Simply close the window (frees VRAM instantly).
+
+**Option B: Manual (Terminal)**
 ```bash
-# Edit scripts/auto_generate.py to set DRY_RUN = False for live posting
+# Run the complete scheduler loop
+python scripts/scheduler.py
+
+# Or singular scripts
 python scripts/auto_generate.py
+python scripts/reply_dms.py
 ```
 
 ## Directory Structure
 - `brain/`: Knowledge base & task tracking.
 - `ComfyUI/`: The specific ComfyUI instance (ignored by git).
 - `docs/`: Setup guides and documentation.
-- `scripts/`: Python helper scripts for API interaction.
+- `output/`: Generated images (ignored by git).
+- `scripts/`: Python helper scripts (`auto_generate`, `reply_dms`, `reply_comments`).
 - `training_data/`: Images for LoRA training.
 - `workflows/`: JSON workflows for ComfyUI.
