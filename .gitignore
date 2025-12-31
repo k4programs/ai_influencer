@@ -22,3 +22,8 @@ training_data/raw_images/
 
 # AI Artifacts
 brain/
+
+# Bot Data (Sensitive)
+session.json
+user_db.json
+revival_log.json
