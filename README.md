@@ -1,7 +1,7 @@
 # AI Influencer Project: Lena-Marie
 
 **Status**: 🚧 Alpha / Development
-**Tech Stack**: Python, ComfyUI (Flux.1), Ollama (LLM), Instagrapi (Automation)
+**Tech Stack**: Python, ComfyUI (Flux.1), Ollama (`mistral-nemo`), Instagrapi (Automation)
 **Documentation**: [Roadmap](docs/roadmap.md) | [Character Card](docs/character_card.md) | [Project Context](docs/GEMINI.md) | [Safety Report](docs/safety_report.md)
 
 ## Project Overview
@@ -10,9 +10,10 @@ The system runs locally on a high-end PC (RTX 3080 Ti) and manages the entire co
 
 ## Core Components
 1.  **Visual Engine**: ComfyUI + Flux.1 [dev] (FP8) + Custom LoRA.
-2.  **Intelligence Engine**: Ollama (Llama 3.2) for creative direction and caption writing.
-3.  **Automation Layer**: Python scripts with `Instagrapi` for direct Instagram access.
-4.  **Resource Manager**: Sequential execution logic to maximize VRAM usage.
+2.  **Intelligence Engine**: Ollama (`mistral-nemo` 12B) for high-level reasoning and conversation.
+3.  **Memory System**: `memory_manager.py` builds an evolving dossier (`user_db.json`) for each user.
+4.  **Automation Layer**: Python scripts with `Instagrapi`, controlled via a central **CLI Menu**.
+5.  **Resource Manager**: Sequential execution logic to maximize VRAM usage.
 
 ## Getting Started
 
@@ -30,19 +31,22 @@ The system runs locally on a high-end PC (RTX 3080 Ti) and manages the entire co
 
 ### Usage (Automation)
 **Option A: One-Click Launcher (Recommended)**
-Double-click `run_automation.bat` on your Desktop (create a shortcut).
-- Opens a window and runs the Scheduler.
-- 🛑 **To Stop**: Simply close the window (frees VRAM instantly).
+Double-click `run_automation.bat` on your Desktop.
+- Starts the **Interactive Menu**.
+- Choose options via keys `[1]` to `[6]`.
+- 🛑 **To Stop**: Press `Ctrl+C` in the window to return to the menu/exit.
 
 **Option B: Manual (Terminal)**
 ```bash
-# Run the complete scheduler loop
+# Run the Interactive Menu
 python scripts/scheduler.py
-
-# Or singular scripts
-python scripts/auto_generate.py
-python scripts/reply_dms.py
 ```
+
+### New Features (v2.0)
+*   **Long-Term Memory**: Lena remembers facts about users (Jobs, Hobbies, etc.).
+*   **Visual DMs**: Can send generated photos in chat if asked (`[SEND_PHOTO]`).
+*   **Smart Online Status**: Simulates human online/offline patterns ("Ghost Mode").
+*   **Security**: Sensitive user data is gitignored.
 
 ## Directory Structure
 - `brain/`: Knowledge base & task tracking.

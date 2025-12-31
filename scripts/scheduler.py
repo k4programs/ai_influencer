@@ -33,34 +33,49 @@ def get_bot():
             return None
     return BOT
 
-def job_dms():
-    print(f"\n📨 [Scheduler] Running DM Check ({datetime.datetime.now().strftime('%H:%M')})...")
+# --- TASKS ---
+
+def run_dm_session(mode="AUTO"):
+    """
+    Runs the DM check logic.
+    mode="AUTO": Part of the scheduler loop. Checks, then returns True if busy (Online) or False (Offline).
+    mode="MANUAL": Runs a dedicated 'Session' loop until no more messages come in for X minutes.
+    """
+    print(f"\n📨 [DM Manager] Checking Inbox ({mode})...")
+    
+    # 1. Perform Check
+    activity = False
     try:
-        # Note: reply_dms typically creates its own bot instance in check_dms
-        # We might need to refactor it to accept an instance, or just let it login again (instagrapi handles session reuse well)
-        reply_dms.check_dms()
+        activity = reply_dms.check_dms()
     except Exception as e:
         print(f"⚠️ DM Job Failed: {e}")
+        return False
+
+    # 2. Handle Outcome
+    if activity:
+        print("🔥 [Status] ACTIVE CONVERSATION DETECTED.")
+        return True
+    else:
+        print("💤 [Status] Inbox quiet.")
+        return False
 
 def job_comments():
-    print(f"\n💬 [Scheduler] Running Comment Check ({datetime.datetime.now().strftime('%H:%M')})...")
+    print(f"\n💬 [Comment Manager] Running Check...")
     try:
         reply_comments.check_and_reply()
     except Exception as e:
         print(f"⚠️ Comment Job Failed: {e}")
 
 def job_reach():
-    print(f"\n🚀 [Scheduler] Running Reach Batch ({datetime.datetime.now().strftime('%H:%M')})...")
+    print(f"\n🚀 [Reach Manager] Running Batch...")
     try:
-        # Pass our shared bot if possible, or let it login
         engage_reach.run_reach_batch() 
     except Exception as e:
         print(f"⚠️ Reach Job Failed: {e}")
 
 def job_daily_post():
-    print(f"\n📸 [Scheduler] Triggering Daily Post ({datetime.datetime.now().strftime('%H:%M')})...")
+    print(f"\n📸 [Content Manager] Triggering Daily Post...")
     try:
-        # Run as subprocess to keep memory clean (ComfyUI/Ollama cleanup is aggressive)
         subprocess.Popen(
             [sys.executable, os.path.join(os.path.dirname(__file__), "auto_generate.py")],
             creationflags=subprocess.CREATE_NEW_CONSOLE
@@ -69,23 +84,100 @@ def job_daily_post():
     except Exception as e:
         print(f"⚠️ Daily Post Launch Failed: {e}")
 
-def start_scheduler():
-    print("🤖 --- LENA-MARIE AUTOMATION CORE STARTING ---")
+# --- SCHEDULER & MENUS ---
+
+def run_auto_scheduler():
+    print("🤖 --- FULL AUTOMATION MODE ---")
     print(f"⏰ Post Time: {POST_TIME}")
-    print(f"⏰ DMs: Every {DM_INTERVAL}m | Comments: Every {COMMENT_INTERVAL}m | Reach: Every {REACH_INTERVAL}m")
+    print("ℹ️  Press Ctrl+C to return to menu (or stop).")
     
-    # Schedule Jobs
-    schedule.every(DM_INTERVAL).minutes.do(job_dms)
+    # Setup Schedule
     schedule.every(COMMENT_INTERVAL).minutes.do(job_comments)
     schedule.every(REACH_INTERVAL).minutes.do(job_reach)
     schedule.every().day.at(POST_TIME).do(job_daily_post)
     
-    # Run once immediately on start (optional, maybe just DMs?)
-    job_dms()
+    # State Machine
+    status = "OFFLINE"
+    last_activity = time.time()
+    next_dm_run = time.time()
 
+    try:
+        while True:
+            # 1. Fixed Schedule
+            schedule.run_pending()
+            
+            # 2. DM / Online Logic
+            if time.time() >= next_dm_run:
+                # Ghost Mode Check (10m silence -> Offline)
+                if status == "ONLINE" and (time.time() - last_activity > 600):
+                    status = "OFFLINE"
+                    print("👻 [State] Switching to OFFLINE (Ghost Mode).")
+
+                # Run Check
+                is_active = run_dm_session("AUTO")
+                
+                if is_active:
+                    status = "ONLINE"
+                    last_activity = time.time()
+                
+                # Calculate Delay
+                if status == "ONLINE":
+                    # Fast: 15-45s
+                    delay = random.randint(15, 45)
+                    print(f"   🔥 ONLINE: Checking again in {delay}s...")
+                else:
+                    # Slow: 10-30m
+                    delay = random.randint(600, 1800)
+                    print(f"   💤 OFFLINE: Checking again in {int(delay/60)}m...")
+
+                next_dm_run = time.time() + delay
+
+            time.sleep(1)
+            
+    except KeyboardInterrupt:
+        print("\n🛑 Stopping Scheduler...")
+
+def main_menu():
     while True:
-        schedule.run_pending()
-        time.sleep(60) # Check every minute
+        print("\n" + "="*30)
+        print("   LENA-MARIE CONTROLLER V2   ")
+        print("="*30)
+        print(" [1] 🤖 Start Full Auto Scheduler")
+        print(" [2] 📨 Start DM Session (Manual)")
+        print(" [3] 💬 Reply to Comments")
+        print(" [4] 📸 Create Daily Post")
+        print(" [5] 🚀 Boost Reach (Likes/Follows)")
+        print(" [6] ❌ EXIT")
+        print("="*30)
+        
+        choice = input("👉 Select Option: ")
+        
+        if choice == "1":
+            run_auto_scheduler()
+        elif choice == "2":
+            print("📨 Starting Dedicated DM Session (Ctrl+C to stop)...")
+            try:
+                while True:
+                    active = run_dm_session("MANUAL")
+                    if active:
+                        wait = random.randint(10, 30)
+                    else:
+                        wait = random.randint(30, 60)
+                    print(f"⏳ Waiting {wait}s...")
+                    time.sleep(wait)
+            except KeyboardInterrupt:
+                pass
+        elif choice == "3":
+            job_comments()
+        elif choice == "4":
+            job_daily_post()
+        elif choice == "5":
+            job_reach()
+        elif choice == "6":
+            print("👋 Bye!")
+            sys.exit(0)
+        else:
+            print("⚠️ Invalid choice.")
 
 if __name__ == "__main__":
     # Check dependencies
@@ -96,4 +188,4 @@ if __name__ == "__main__":
         subprocess.check_call([sys.executable, "-m", "pip", "install", "schedule"])
         import schedule
 
-    start_scheduler()
+    main_menu()

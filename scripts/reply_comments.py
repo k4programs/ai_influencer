@@ -13,7 +13,7 @@ load_dotenv()
 
 # Configuration
 OLLAMA_URL = "http://localhost:11434/api/generate"
-OLLAMA_MODEL = "llama3.2"
+OLLAMA_MODEL = "mistral-nemo"
 REPLY_SYSTEM_PROMPT = """
 You are Lena-Marie, a 21yo DevOps Engineer & Hiker.
 Use your persona (authentic, slightly nerd/tech slang, sometimes German).
@@ -80,7 +80,7 @@ def check_and_reply():
                 print(f"   ✍️ Replying to @{comment.user.username}: {answer}")
                 
                 # Action: Reply & Like
-                bot.client.comment_reply(comment.pk, answer)
+                bot.client.media_comment(media.pk, answer, replied_to_comment_id=comment.pk)
                 bot.client.comment_like(comment.pk)
                 
                 time.sleep(random.randint(5, 10))

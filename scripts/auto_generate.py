@@ -12,7 +12,7 @@ from instagram_bot import InstagramBot
 
 # --- CONFIGURATION ---
 OLLAMA_URL = "http://localhost:11434/api/generate"
-OLLAMA_MODEL = "llama3.2"
+OLLAMA_MODEL = "mistral-nemo"
 COMFY_URL = "http://127.0.0.1:8188"
 WORKFLOW_FILE = r"c:\Users\k4_PC\Projekte\ai_influencer\workflows\test_lena_lora.json"
 OUTPUT_DIR = r"c:\Users\k4_PC\Projekte\ai_influencer\ComfyUI\ComfyUI\output"
@@ -230,6 +230,37 @@ def save_result(image_path, caption):
         
     print(f"📂 Saved post to: {post_folder}")
     return new_image_path
+
+def generate_image_simple(prompt_text):
+    """
+    Standalone function to generate an image from a prompt.
+    Manages VRAM (Stops Ollama -> Starts ComfyUI -> Generates -> Stops ComfyUI).
+    Returns path to generated image.
+    """
+    print(f"📸 Visual DM requested: '{prompt_text}'")
+    
+    # 1. Stop Ollama (Free VRAM)
+    ServiceManager.kill_process("ollama")
+    ServiceManager.kill_process("ollama_app")
+    time.sleep(2)
+    
+    # 2. Start ComfyUI
+    if ServiceManager.start_comfyui():
+        # 3. Queue Job
+        # Ensure we have the lena trigger word
+        final_prompt = f"lena_marie, {prompt_text}, high quality, instagram photo, masterpiece"
+        job_id = queue_job(final_prompt)
+        
+        if job_id:
+            image_path = wait_for_image(job_id, timeout=300)
+            
+            # 4. Stop ComfyUI
+            print("🛑 Stopping ComfyUI...")
+            ServiceManager.kill_process("python")
+            
+            return image_path
+            
+    return None
 
 # --- MAIN SEQUENCE ---
 if __name__ == "__main__":

@@ -1,145 +1,86 @@
-🚀 Project Roadmap: AI Influencer (Local & Autonomous)
-Ziel: Erstellung einer konsistenten AI-Influencerin mit lokaler Bild- und Textgenerierung (RTX 3080 Ti) und "Human-Like" Android-Automatisierung.
+# Lena-Marie: 2026 Roadmap & Vision 🚀
 
-📅 Phase 1: Konzept & Identität (Das Fundament)
-Bevor Technik installiert wird, muss die Persönlichkeit stehen, damit das Training und die Prompts funktionieren.
+**Current Status**: ✅ Phase 1 Complete (Autonomous Image/Text Posting, Text DMs).
+**Next Phase**: **"Alive & Moving"** (Voice, Video, Perception).
 
-[x] Persona Definition:
-Name: Lena-Marie Alter: 21 Rolle: Junior DevOps Engineer & Lifestyle-Experiment Location: Allgäu, Germany (Alps)
+---
 
-Persönlichkeit: Du bist intelligent, technisch versiert (Nerd), aber sozial und gesprächig (Extrovertiert). Du liebst den Kontrast zwischen High-Tech (dein Job, Gaming) und der Ruhe der Berge (deine Heimat). Du bist nicht perfekt. Du bist ein wenig chaotisch ("Spaghetti-Code im Kopf").
+## 1. 🎙️ Voice Interaction ("The Voice Upgrade")
+**Goal**: Lena should hear and speak, not just read and write.
 
-Sprachregelung (WICHTIG):
+### A. Hearing (Voice-to-Text)
+*   **Technique**: Decode incoming Instagram Voice DMs.
+*   **Tech Stack**: **OpenAI Whisper (Local)**.
+*   **Implementation**:
+    1.  Download audio file from DM (instagrapi supports this).
+    2.  Run `whisper` to transcribe to text.
+    3.  Feed text to Ollama (Brain).
 
-Default: Deine Captions und Stories sind auf ENGLISCH, um international zu wirken.
+### B. Speaking (Text-to-Speech)
+*   **Technique**: Generate audio replies with a specific, consistent "Lena Voice" (Young, slight German accent, friendly).
+*   **Tech Stack Options**:
+    *   **ElevenLabs (Cloud)**: Best quality, easiest, costs money (~$5-20/mo).
+    *   **Coqui XTTS v2 (Local)**: Free, decent quality, uses VRAM (conflicts with Flux potentially).
+*   **Feature**: "Voice Message Sunday" - Users ask questions, she replies via Audio.
 
-Reaktion: Wenn dich jemand auf Deutsch anschreibt, antwortest du immer auf Deutsch (mit leichtem bayerischen Charme, aber verständlich). Wenn jemand Englisch schreibt, Englisch.
+---
 
-Themen & Stil:
+## 2. 🎥 Video & Reels ("The Motion Upgrade")
+**Goal**: Static images are good, but Reels rule the algorithm.
 
-Du vergleichst Mode oft mit IT-Begriffen (z.B. "New outfit deployed", "Fixing bugs in my wardrobe", "System overload").
+### A. "Talking Head" Stories
+*   **Concept**: A 15s Story where Lena talks about her day (Selfie view).
+*   **Tech Stack**: **LivePortrait** or **SadTalker**.
+*   **Workflow**:
+    1.  Generate Flux Image (Selfie).
+    2.  Generate Audio (TTS).
+    3.  Animate Face via LivePortrait to match Audio.
+    *   *Result*: Highly realistic talking video.
 
-Du trägst manchmal eine Brille (Coding Mode), manchmal Kontaktlinsen (Adventure Mode).
+### B. Cinematic B-Roll (Atmosphere)
+*   **Concept**: Moving shots of the Alps, Coding setups, Walking.
+*   **Tech Stack**: **AnimateDiff (ComfyUI)** or **Luma Dream Machine (Cloud)**.
+*   **Workflow**:
+    1.  Flux Image ("Mountains at sunset").
+    2.  Img2Video -> Camera pan, wind moving grass.
 
-Du bist klein (1,60m) und machst Witze darüber ("Compact Build", "Optimized for small spaces").
+---
 
-Schreibstil:
+## 3. 👀 Visual Perception ("The Eyes Upgrade")
+**Goal**: Lena should "see" what users send her.
 
-Nutze Tech-Humor.
+*   **Scenario**: User sends a photo of their PC setup.
+*   **Current**: Lena ignores it or says "Nice pic".
+*   **Upgrade**: Lena says "Whoa, is that a Keychron keyboard? And nice cable management! 🖥️"
+*   **Tech Stack**: **Llava (via Ollama)** or **Llama 3.2 Vision**.
+    *   Multimodal LLMs can analyze the image content and describe it to the text-brain.
 
-Emojis: 💻, 🏔️, 🥨, 👓, ✨.
+---
 
-Sei freundlich, hilfsbereit, aber habe eine eigene Meinung.
+## 4. 🧠 Trend Awareness ("The Zeitgeist Upgrade")
+**Goal**: Stop posting random content; post about *Now*.
 
-[ ] Visuelles Moodboard: Sammeln von 10-20 Referenzbildern (echte Menschen), die so aussehen wie sie aussehen soll (für das spätere LoRA Training).
+*   **Concept**: Scraper script that checks:
+    *   `#DevOps` trending topics (e.g., "Kubernetes update", "Cloud crash").
+    *   `Berlin` events (e.g., "Festival of Lights").
+*   **Implementation**:
+    *   Feed top news headlines into the `generate_visual_prompt` context.
+    *   *Result*: Lena posts: "Everyone talking about the AWS outage today... glad I'm on vacation! 🙈 #aws #devops"
 
-[ ] Character Card & Voice: Schreiben der Persönlichkeits-Bibel (Slang, Emojis, Haltung, No-Gos) für das LLM.
+---
 
-📅 Phase 1.5: Content Strategy (Instagram Focus)
-Der Plan für den Content-Mix, um "Realismus" zu erzeugen.
+## 📅 Proposed Timeline
 
-[ ] Plattform-Fokus: Instagram Only (vorerst). Keine TikTok/X Expansion bis der Workflow steht.
+| Feature | Difficulty | Resource Impact | Priority |
+| :--- | :--- | :--- | :--- |
+| **Voice Hearing (Whisper)** | ⭐ Easy | Low (Runs on CPU) | High |
+| **Visual Perception (Llava)** | ⭐⭐ Medium | High (VRAM) | Medium |
+| **Speaking (TTS - Cloud)** | ⭐⭐ Medium | Cost ($) | High |
+| **Talking Head Video** | ⭐⭐⭐ Hard | Extreme (VRAM) | Low (Polish) |
+| **Reels (B-Roll)** | ⭐⭐⭐ Hard | Extreme (VRAM) | Low |
 
-[ ] Content-Mix:
-    - Feed Posts (High Quality): Beste Bilder aus ComfyUI (Flux.1). Fokus auf Ästhetik & Lifestyle.
-    - Reels (Reach): Animierte Bilder (z.B. mit KlingAI/Runway) oder "Static-with-Audio" Trends.
-    - Stories (Binding): "Low Quality" Snapshots (Vision Model generated text) für den "Behind the scenes" Vibe.
+---
 
-[ ] Posting-Frequenz (Ziel):
-    - 3-4 Feed Posts pro Woche.
-    - 1 Reel pro Woche.
-    - Tägliche Stories (sobald Automation läuft).
-
-🎨 Phase 2: Visual Engine (PC / ComfyUI)
-Einrichtung der Bildgenerierung auf der RTX 3080 Ti.
-
-[ ] Installation: ComfyUI und ComfyUI-Manager installieren.
-
-[ ] Model Setup: Flux.1 [dev] (fp8 oder GGUF Version für 12GB VRAM) herunterladen und testen.
-
-[ ] LoRA Training (Der wichtigste Schritt):
-
-[ ] Trainings-Dataset vorbereiten (ca. 20 Bilder).
-
-[ ] Training durchführen (z.B. mit Kohya_ss oder Ai-Toolkit).
-
-[ ] LoRA in ComfyUI testen und validieren.
-
-[ ] Workflow: Basis-Foto: Einen stabilen ComfyUI-Workflow erstellen, der konsistente Porträts & Ganzkörperbilder liefert (API-ready machen).
-
-[ ] Workflow: Story-Komposition: Workflow erweitern, um Bilder auf 9:16 Format zu bringen und ggf. Text-Overlays zu ermöglichen.
-
-🧠 Phase 3: Intelligence Engine (PC / Ollama)
-Das Gehirn für Captions und Kommentare einrichten.
-
-[ ] Installation: Ollama installieren.
-
-[ ] LLM Setup: Basis-Modell laden (z.B. Llama 3.1 8B oder Mistral Nemo).
-
-[ ] Custom Model Creation:
-
-[ ] Modelfile erstellen mit dem System-Prompt aus Phase 1.
-
-[ ] ollama create [charaktername] ausführen.
-
-[ ] Vision Model Setup: MiniCPM-V oder LLaVA in Ollama laden (für die Bilderkennung auf dem Handy).
-
-[ ] Test: Chat-Simulation im Terminal durchführen, um zu sehen, ob sie "in character" bleibt.
-
-🤖 Phase 4: Automation Infrastructure (Android / Python)
-Die Verbindung zum Smartphone und die Steuerung.
-
-[ ] Vorbereitung:
-
-[ ] Android Developer Modus & USB Debugging aktivieren.
-
-[ ] adb auf dem PC einrichten.
-
-[ ] Python Umgebung erstellen & uiautomator2 installieren.
-
-[ ] Basic Control Skript: Python-Skript schreiben, das Instagram öffnet, scrollt und Buttons per Texterkennung findet.
-
-[ ] File Transfer: Automatisierung einrichten, die Bilder vom PC-Ordner in die Android-Galerie pusht (adb push).
-
-[ ] Vision-Loop: Skript erweitern -> Screenshot machen -> an lokales Vision-Model senden -> Entscheidung treffen (Liken/Kommentieren/Skip).
-
-⚙️ Phase 5: Pipeline Orchestrierung (n8n)
-Alles miteinander verbinden.
-
-[ ] n8n Setup: Lokal (Docker) installieren.
-
-[ ] Generierungs-Workflow:
-
-[ ] Trigger (Zeitplan).
-
-[ ] LLM Node (Ideenfindung für Bild).
-
-[ ] HTTP Request an ComfyUI (Bild generieren).
-
-[ ] LLM Node (Caption zum Bild schreiben).
-
-[ ] Speichern in "Upload"-Ordner.
-
-[ ] Posting-Trigger: Python-Watcher schreiben, der erkennt: "Neues Bild im Ordner? -> Starte Android Upload-Routine".
-
-🚀 Phase 6: Launch & Warm-up
-Der langsame Start, um Bans zu vermeiden.
-
-[ ] Account Erstellung: Instagram Account auf dem Handy erstellen (über 4G/5G, nicht WLAN!).
-
-[ ] Warm-up Woche 1: Nur manuelles Scrollen, ab und zu ein Like (keine Posts, keine Automatisierung).
-
-[ ] Warm-up Woche 2: Erstes Profilbild, Bio (manuell). Erste Story (manuell).
-
-[ ] Go-Live: Aktivieren der Posting-Automatisierung (erst 1 Post alle 2-3 Tage).
-
-[ ] Überwachung: Logs prüfen: Wirkt sie echt? Gibt es Fehler?
-
-💰 Phase 7: Monetization (Long-term / Optional)
-Erst relevant, wenn eine Community existiert (ab ~5k Follower).
-
-[ ] Strategie-Entscheidung:
-    - Brand Deals (Fashion/Tech).
-    - Affiliate (Amazon Links für "ihre" Gear).
-    - Exclusive Content (Patreon/Fanvue - *nur wenn SFW/Safe bleiben soll*).
-
+## Suggested Immediate Next Step:
+**Implement "Voice Hearing"**.
+It allows users to talk to her, which creates a huge "Woah" effect, and Whisper is easy to run locally.
