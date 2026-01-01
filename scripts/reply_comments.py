@@ -26,21 +26,34 @@ Rules:
 - Be nice!
 """
 
+# ... (imports)
+import json # Ensure json is imported
+import time
+
 def generate_reply(comment_text):
     print(f"🧠 Generating reply for: '{comment_text}'")
-    payload = {
-        "model": OLLAMA_MODEL,
-        "prompt": f"{REPLY_SYSTEM_PROMPT}\n\nComment: {comment_text}",
-        "stream": False
-    }
+    
+    # Check for Topic of the Day
+    context_str = ""
     try:
-        data = json.dumps(payload).encode("utf-8")
-        req = urllib.request.Request(OLLAMA_URL, data=data, headers={'Content-Type': 'application/json'})
-        with urllib.request.urlopen(req) as response:
-            result = json.loads(response.read().decode("utf-8"))
-            return result.get("response", "").strip().replace('"', '')
+        if os.path.exists("daily_topic.json"):
+            with open("daily_topic.json", "r") as f:
+                data = json.load(f)
+                # Check if it's from today
+                if data.get("date") == time.strftime("%Y-%m-%d"):
+                    topic = data.get("topic")
+                    context_str = f"CONTEXT: Today's post is about '{topic}'. Relate your reply to this if relevant."
+                    print(f"   Using Context: {topic}")
     except Exception as e:
-        print(f"❌ Ollama Error: {e}")
+        print(f"⚠️ Error reading topic context: {e}")
+
+    prompt = f"{REPLY_SYSTEM_PROMPT}\n{context_str}\n\nComment: {comment_text}"
+    
+    res = query_llm(prompt, f"Comment: {comment_text}", provider="AUTO")
+    
+    if res:
+        return res
+    else:
         return "Thanks! ❤️"
 
 def check_and_reply():

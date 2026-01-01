@@ -1,7 +1,7 @@
 # AI Influencer Project: Lena-Marie
 
 **Status**: 🚧 Alpha / Development
-**Tech Stack**: Python, ComfyUI (Flux.1), Ollama (`mistral-nemo`), Instagrapi (Automation)
+**Tech Stack**: Python, ComfyUI (Flux.1), Hybrid Intelligence (Gemini Cloud + Ollama Local), Instagrapi
 **Documentation**: [Roadmap](docs/roadmap.md) | [Character Card](docs/character_card.md) | [Project Context](docs/GEMINI.md) | [Safety Report](docs/safety_report.md)
 
 ## Project Overview
@@ -10,7 +10,7 @@ The system runs locally on a high-end PC (RTX 3080 Ti) and manages the entire co
 
 ## Core Components
 1.  **Visual Engine**: ComfyUI + Flux.1 [dev] (FP8) + Custom LoRA.
-2.  **Intelligence Engine**: Ollama (`mistral-nemo` 12B) for high-level reasoning and conversation.
+2.  **Intelligence Engine**: Unified Provider (Google Gemini for Cloud, Ollama for Local) for high-IQ responses.
 3.  **Memory System**: `memory_manager.py` builds an evolving dossier (`user_db.json`) for each user.
 4.  **Automation Layer**: Python scripts with `Instagrapi`, controlled via a central **CLI Menu**.
 5.  **Resource Manager**: Sequential execution logic to maximize VRAM usage.
@@ -42,9 +42,13 @@ Double-click `run_automation.bat` on your Desktop.
 python scripts/scheduler.py
 ```
 
-### New Features (v2.0)
+### New Features (v2.1)
+*   **Physical Automation**: Controls real Android Hardware (Mate 20 Pro) via ADB. No Emulators.
+*   **Hybrid Vision**: Uses OpenCV for speed (UI Clicking) and Gemini for brains (Reading/Seeing).
 *   **Long-Term Memory**: Lena remembers facts about users (Jobs, Hobbies, etc.).
 *   **Visual DMs**: Can send generated photos in chat if asked (`[SEND_PHOTO]`).
+*   **News Feed**: Auto-fetch IT/Tech headlines (Heise, TechCrunch) for topical posts.
+*   **Daily Hints**: User can set a hint (e.g. "Sylvester") that is used once and then deleted.
 *   **Smart Online Status**: Simulates human online/offline patterns ("Ghost Mode").
 *   **Security**: Sensitive user data is gitignored.
 

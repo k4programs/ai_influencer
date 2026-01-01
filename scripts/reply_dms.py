@@ -12,6 +12,7 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 from instagram_bot import InstagramBot
 from memory_manager import extract_facts, get_user_context
 from auto_generate import generate_image_simple
+from llm_provider import query_llm
 
 load_dotenv()
 
@@ -116,24 +117,17 @@ def generate_dm_reply(incoming_text, history_context=""):
     prompt = get_system_prompt()
     
     # Combine System Prompt + Conversation History (which now includes User Facts)
-    full_prompt = f"{prompt}\n\n{history_context}\n\nCURRENT MESSAGE:\nUser: {incoming_text}\nYou:"
+    # query_llm handles the "user prompt" separation, so we structure it:
     
-    payload = {
-        "model": OLLAMA_MODEL,
-        "prompt": full_prompt,
-        "stream": False,
-        "options": {
-            "temperature": 0.7 # Lower temp slightly for better grammar stability
-        }
-    }
-    try:
-        data = json.dumps(payload).encode("utf-8")
-        req = urllib.request.Request(OLLAMA_URL, data=data, headers={'Content-Type': 'application/json'})
-        with urllib.request.urlopen(req) as response:
-            result = json.loads(response.read().decode("utf-8"))
-            return result.get("response", "").strip().replace('"', '')
-    except Exception as e:
-        print(f"❌ Ollama Error: {e}")
+    res = query_llm(
+        system_prompt=prompt,
+        user_prompt=f"{history_context}\n\nCURRENT MESSAGE:\nUser: {incoming_text}\nYou:",
+        provider="AUTO"
+    )
+
+    if res:
+        return res
+    else:
         return "Hey! ✨"
 
 def check_dms():

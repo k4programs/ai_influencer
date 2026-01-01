@@ -6,18 +6,21 @@ import urllib.error
 import time
 import random
 import subprocess
+import argparse
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 from instagram_bot import InstagramBot
 
 # --- CONFIGURATION ---
-OLLAMA_URL = "http://localhost:11434/api/generate"
+OLLAMA_URL = "http://localhost:11434/api/generate" # Keep for debug if needed
 OLLAMA_MODEL = "mistral-nemo"
 COMFY_URL = "http://127.0.0.1:8188"
 WORKFLOW_FILE = r"c:\Users\k4_PC\Projekte\ai_influencer\workflows\test_lena_lora.json"
 OUTPUT_DIR = r"c:\Users\k4_PC\Projekte\ai_influencer\ComfyUI\ComfyUI\output"
 PROJECT_ROOT = r"c:\Users\k4_PC\Projekte\ai_influencer"
 DRY_RUN = False # Set to False for LIVE POSTING
+
+from llm_provider import query_llm
 
 # --- PROMPTS ---
 PERSONA_SYSTEM_PROMPT = """
@@ -48,8 +51,8 @@ Context:
 Rules:
 1. Write in FIRST PERSON ("I", "my", "me").
 2. Keep it SHORT (max 2 sentences).
-3. Add 3-5 relevant hashtags (e.g. #devops, #gorpcore, #berlin, #outdoor).
-4. Do NOT describe the image visually (e.g. "In this photo I am..."). Just share your thought or vibe.
+3. Add 5-10 relevant hashtags (e.g. #devops, #gorpcore, #berlin, #outdoor, #techlife, #coding).
+5. ENGAGEMENT: If the post is about a specific topic/news, asking a question (e.g. "What do you think?", "Seht ihr das auch so?").
 """
 
 class ServiceManager:
@@ -120,38 +123,40 @@ class ServiceManager:
         return False
 
 # --- OLLAMA CLIENT ---
-def query_ollama(system_prompt, user_prompt="-"):
-    # Generic query function
-    payload = {
-        "model": OLLAMA_MODEL,
-        "prompt": f"{system_prompt}\n\nTask: {user_prompt}",
-        "stream": False
-    }
-    
-    try:
-        data = json.dumps(payload).encode("utf-8")
-        req = urllib.request.Request(OLLAMA_URL, data=data, headers={'Content-Type': 'application/json'})
-        with urllib.request.urlopen(req) as response:
-            result = json.loads(response.read().decode("utf-8"))
-            return result.get("response", "").strip()
-    except Exception as e:
-        print(f"❌ Error querying Ollama: {e}")
-        return None
+# (Replaced by llm_provider.query_llm)
 
-def generate_visual_prompt():
-    print(f"🧠 Asking {OLLAMA_MODEL} for a visual concept...")
-    res = query_ollama(PERSONA_SYSTEM_PROMPT, "Generate a new image idea.")
+
+def generate_visual_prompt(user_hint=None, use_subscription=False):
+    """
+    Generates the Flux.1 prompt using LLM.
+    """
+    print(f"🧠 Asking Intelligence for a visual concept...")
+    
+    provider = "SUBSCRIPTION" if use_subscription else "AUTO"
+    if provider == "SUBSCRIPTION":
+        print("💎 Using High-Quality Subscription Model...")
+
+    task_prompt = "Generate a new image idea."
+    if user_hint:
+        print(f"👉 Applying User Hint: '{user_hint}'")
+        task_prompt = f"Generate a new image idea. IMPORTANT USER REQUEST: {user_hint}"
+
+    res = query_llm(PERSONA_SYSTEM_PROMPT, task_prompt, provider="AUTO")
     if res:
         print(f"💡 Visual: {res}")
     return res
 
-def generate_caption(visual_description):
-    print(f"✍️ Asking {OLLAMA_MODEL} for an Instagram caption...")
-    prompt = f"Write a caption for this situation: '{visual_description}'"
-    res = query_ollama(CAPTION_SYSTEM_PROMPT, prompt)
-    if res:
-        print(f"📝 Caption: {res}")
-    return res
+def generate_caption(visual_description, use_subscription=False):
+    """
+    Generates the Instagram caption.
+    """
+    print("✍️ Writing caption...")
+    provider = "SUBSCRIPTION" if use_subscription else "AUTO"
+    
+    response = query_llm(CAPTION_SYSTEM_PROMPT, visual_description, provider=provider)
+    if response:
+        print(f"📝 Caption: {response}")
+    return response
 
 # --- COMFYUI CLIENT ---
 def queue_job(prompt_text):
@@ -271,21 +276,49 @@ if __name__ == "__main__":
     ServiceManager.kill_all_services()
     time.sleep(2)
     
-    # 2. Intelligence Phase
-    print("\n--- STEP 2: INTELLIGENCE (Ollama) ---")
+    # --- MAIN EXECUTION ---
+    print("\n--- STEP 2: INTELLIGENCE (Ollama/Gemini) ---")
+    
+    # Arg Parsing
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--cron", action="store_true", help="Run in cron mode")
+    parser.add_argument("--hint", type=str, help="User context hint", default=None)
+    parser.add_argument("--subscription", action="store_true", help="Use Subscription CLI", default=False)
+    
+    args, unknown = parser.parse_known_args()
+    
+    CRON_MODE = args.cron
+    user_hint = args.hint
+    use_subscription = args.subscription
+
+    # Legacy: If raw args exist and no --hint, treat as hint
+    if not user_hint and unknown:
+        user_hint = " ".join(unknown)
+    
     visual_prompt = None
     caption = None
 
-    if ServiceManager.start_ollama():
+    # Logic: Only start Ollama if NOT using subscription (or if we want fallback)
+    start_service = not use_subscription
+    
+    service_ready = True
+    if start_service:
+        service_ready = ServiceManager.start_ollama()
+    else:
+        print("💎 Skipping Ollama startup (Subscription Mode Active)")
+
+    if service_ready: 
         # A) Visual Prompt (3rd Person)
-        visual_prompt = generate_visual_prompt()
+        visual_prompt = generate_visual_prompt(user_hint, use_subscription=use_subscription)
         
         # B) Social Caption (1st Person)
         if visual_prompt:
-            caption = generate_caption(visual_prompt)
+             # Using subscription for caption too
+            caption = generate_caption(visual_prompt, use_subscription=use_subscription)
         
-        print("🛑 Stopping Ollama to free VRAM...")
-        ServiceManager.kill_process("ollama")
+        if start_service:
+            print("🛑 Stopping Ollama to free VRAM...")
+            ServiceManager.kill_process("ollama")
         
         if not visual_prompt or not caption:
              print("❌ Failed to generate content. Exiting.")
@@ -317,6 +350,30 @@ if __name__ == "__main__":
                     bot.upload_photo(final_image_path, caption, mock=DRY_RUN) 
                     
                     print("\n✅ Workflow Completed Successfully!")
+                    
+                    # --- CLEANUP & MEMORY ---
+                    # 1. Save Topic of the Day (for Comments)
+                    if user_hint:
+                        topic_data = {
+                            "date": time.strftime("%Y-%m-%d"),
+                            "topic": user_hint
+                        }
+                        try:
+                            with open("daily_topic.json", "w") as f:
+                                json.dump(topic_data, f)
+                            print(f"🧠 Memorized Topic of the Day: {user_hint}")
+                        except Exception as e:
+                            print(f"⚠️ Failed to save topic: {e}")
+
+                        # 2. Cleanup Daily Hint File (One-time use)
+                        # We try to remove the hint file if it exists
+                        hint_file = "daily_hint.json"
+                        if os.path.exists(hint_file):
+                            try:
+                                os.remove(hint_file)
+                                print("🗑️ Deleted used daily_hint.json (One-Time Use).")
+                            except Exception as e:
+                                print(f"⚠️ Failed to delete hint file: {e}")
                 else:
                     print("❌ Failed to save/move image.")
             else:
