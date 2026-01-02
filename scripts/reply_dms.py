@@ -170,7 +170,60 @@ def check_dms():
             last_item = thread.messages[0]
             
             # Message Processing
-            incoming_text = last_item.text
+            incoming_text = ""
+            
+            # --- VOICE MESSAGE HANDLING ---
+            if last_item.item_type == 'voice_media':
+                print(f"🎤 Voice Message received from {sender}!")
+                try:
+                    # Initialize Transcriber (Lazy Load to avoid VRAM hog if not needed)
+                    # Note: Ideally global, but for safety doing it local for now or via import
+                    from transcribe_voice import VoiceTranscriber
+                    transcriber = VoiceTranscriber(model_size="medium")
+                    
+                    # File Path
+                    voice_filename = f"voice_in_{thread.pk}_{last_item.pk}.m4a"
+                    voice_path = os.path.join("output", "voice", voice_filename)
+                    os.makedirs(os.path.dirname(voice_path), exist_ok=True)
+                    
+                    # Download
+                    # last_item.voice_media is a dict or object. 
+                    # If it's an object, it has 'media' attribute which is likely the Media object with PK.
+                    # Let's inspect or try accessing .pk of the media.
+                    # Instagrapi: last_item.voice_media.media.pk
+                    media_pk = last_item.voice_media.media.pk
+                    
+                    downloaded_path = bot.download_voice_dm(media_pk, voice_path)
+                    
+                    if downloaded_path:
+                        # Transcribe
+                        text = transcriber.transcribe(downloaded_path)
+                        if text:
+                            incoming_text = f"[VOICE MESSAGE]: {text}"
+                            print(f"📝 Transcribed: {incoming_text}")
+                            
+                            # Cleanup
+                            try:
+                                os.remove(downloaded_path)
+                            except:
+                                pass
+                        else:
+                            print("❌ Transcription returned empty.")
+                            incoming_text = "(Leere Sprachnachricht)"
+                except Exception as e:
+                    print(f"❌ Voice handling failed: {e}")
+                    incoming_text = "(Fehler beim Abhören der Sprachnachricht)"
+
+            elif last_item.item_type == 'text':
+                incoming_text = last_item.text
+            
+            else:
+                 # Other types (like, link, etc) - ignore for now
+                 print(f"   ℹ️ Ignored message type: {last_item.item_type}")
+                 continue 
+                 
+            if not incoming_text:
+                continue
             sender = thread.users[0].username
             
             # --- REVIVAL LOGIC START ---

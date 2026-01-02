@@ -42,13 +42,12 @@ Double-click `run_automation.bat` on your Desktop.
 python scripts/scheduler.py
 ```
 
-### New Features (v2.1)
+### New Features (v2.2)
+*   **Real AI Video**: Creates moving video stories using **Stable Video Diffusion (SVD)**.
+*   **Voice Interaction**: Lena speaks (Bark) and hears (Whisper). Full Voice-to-Voice DM support.
 *   **Physical Automation**: Controls real Android Hardware (Mate 20 Pro) via ADB. No Emulators.
 *   **Hybrid Vision**: Uses OpenCV for speed (UI Clicking) and Gemini for brains (Reading/Seeing).
-*   **Long-Term Memory**: Lena remembers facts about users (Jobs, Hobbies, etc.).
 *   **Visual DMs**: Can send generated photos in chat if asked (`[SEND_PHOTO]`).
-*   **News Feed**: Auto-fetch IT/Tech headlines (Heise, TechCrunch) for topical posts.
-*   **Daily Hints**: User can set a hint (e.g. "Sylvester") that is used once and then deleted.
 *   **Smart Online Status**: Simulates human online/offline patterns ("Ghost Mode").
 *   **Security**: Sensitive user data is gitignored.
 

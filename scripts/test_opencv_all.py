@@ -35,7 +35,11 @@ def test_all_templates():
         found = None
         best_val = 0
         
-        for scale in [1.0, 0.9, 1.1, 0.8, 1.2]:
+        # Expanded scale range to handle zoom variants (0.5x to 2.0x)
+        # 1.0 = native, >1.0 = template is smaller than screen (screen is huge), <1.0 = template is larger than screen (zoomed crop)
+        scales = [1.0, 0.9, 1.1, 0.8, 1.2, 0.7, 1.3, 0.6, 1.4, 0.5, 1.5, 2.0]
+        
+        for scale in scales:
             # Resize template
             if scale != 1.0:
                 resized_w = int(templ_img.shape[1] * scale)
@@ -64,7 +68,20 @@ def test_all_templates():
         center_x = best_loc[0] + best_size[1] // 2
         center_y = best_loc[1] + best_size[0] // 2
         
+        if status == "✅ FOUND":
+            # Draw rectangle on debug image
+            top_left = best_loc
+            bottom_right = (top_left[0] + best_size[1], top_left[1] + best_size[0])
+            cv2.rectangle(screen, top_left, bottom_right, (0, 255, 0), 2)
+            cv2.putText(screen, f"{name} ({best_val:.2f})", (top_left[0], top_left[1]-10), 
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 255, 0), 2)
+        
         print(f"{name:<35} | {best_val:.2f} (x{best_scale})| {status:<10} | ({center_x}, {center_y})")
+
+    # Save debug image
+    debug_path = "logs/screenshots/test_opencv_result.png"
+    cv2.imwrite(debug_path, screen)
+    print(f"\n📸 Debug image saved to: {debug_path}")
 
 if __name__ == "__main__":
     test_all_templates()
